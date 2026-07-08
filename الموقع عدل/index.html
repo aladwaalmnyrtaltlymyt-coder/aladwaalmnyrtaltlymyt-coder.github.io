@@ -1,0 +1,1555 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>شركة الأضواء المنيرة التعليمية | أفضل دورات القدرات والتحصيل في السعودية</title>
+  <meta name="description" content="شركة الأضواء المنيرة التعليمية – دورات مكثفة لاختبار القدرات والتحصيل الدراسي. معلمون متخصصون، نتائج مضمونة، سجل الآن وتفوق في قياس."/>
+  <meta name="keywords" content="الأضواء المنيرة, دورات قدرات, دورات تحصيل, اختبار القدرات, التحصيل الدراسي, إعداد قدرات, تحضير قدرات, دورات قياس, قدرات تحصيلي, معهد تعليمي, دورات القبول الجامعي, الأضواء المنيرة التعليمية"/>
+  <meta name="author" content="شركة الأضواء المنيرة التعليمية"/>
+  <meta name="robots" content="index, follow"/>
+  
+  <!-- رابط التوثيق مع Google Search Console (استبدل الكود الخاص بك) -->
+  <meta name="google-site-verification" content="أضف_كود_التوثيق_هنا" />
+
+  <link rel="canonical" href="https://adwaa-mnira.netlify.app"/>
+
+  <!-- Open Graph (مشاركة في واتساب وتويتر وغيرها) -->
+  <meta property="og:title" content="شركة الأضواء المنيرة التعليمية - دورات قدرات وتحصيل"/>
+  <meta property="og:description" content="دورات احترافية لإختبارات القدرات والتحصيل الدراسي. سجّل الآن وحقق أعلى الدرجات!"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://adwaa-mnira.netlify.app"/>
+  <meta property="og:image" content="https://adwaa-mnira.netlify.app/og-image.jpg"/>
+  <meta property="og:locale" content="ar_SA"/>
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="الأضواء المنيرة التعليمية"/>
+  <meta name="twitter:description" content="دورات القدرات والتحصيل الدراسي – نتائج مضمونة. تواصل: 0578083447"/>
+
+  <!-- Structured Data (JSON-LD) لتحسين الظهور في البحث -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "EducationalOrganization",
+      "name": "شركة الأضواء المنيرة التعليمية",
+      "description": "دورات إعداد لاختبار القدرات والتحصيل الدراسي في المملكة العربية السعودية",
+      "url": "https://adwaa-mnira.netlify.app",
+      "telephone": "+966578083447",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "SA"
+      },
+      "sameAs": [
+        "https://wa.me/9660578083447"
+      ]
+    }
+  </script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet"/>
+  
+  <!-- نظام البيانات: Firebase للنشر + localStorage احتياطي -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script>
+    let db = null, auth = null;
+    try {
+      const firebaseConfig = {
+        apiKey: "AIzaSyD2oVbqDI-KqUBIdtIZtoCALsBkSWV_B9I",
+        authDomain: "add-678.firebaseapp.com",
+        projectId: "add-678",
+        storageBucket: "add-678.firebasestorage.app",
+        messagingSenderId: "262262606008",
+        appId: "1:262262606008:web:d55443143f02d77d938c4d"
+      };
+      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+      db = firebase.firestore();
+      auth = firebase.auth();
+      console.log("✅ Firebase جاهز");
+    } catch(e) {
+      console.warn("Firebase غير متاح، سيُستخدم localStorage");
+    }
+
+    function lsGetStudents() {
+      try { return JSON.parse(localStorage.getItem('students') || '[]'); } catch(e) { return []; }
+    }
+
+    window.saveToFirebase = async function(studentData) {
+      const list = lsGetStudents();
+      list.push({ ...studentData, timestamp: new Date().toISOString() });
+      localStorage.setItem('students', JSON.stringify(list));
+      if (db) {
+        try { await db.collection("students").add({ ...studentData, timestamp: new Date().toISOString() }); }
+        catch(e) { console.warn("تعذّر الحفظ في Firebase:", e.message); }
+      }
+      return true;
+    };
+
+    window.getAllStudents = async function() {
+      if (db) {
+        try {
+          const snap = await db.collection("students").get();
+          const list = [];
+          snap.forEach(d => list.push({ docId: d.id, ...d.data() }));
+          if (list.length > 0) { localStorage.setItem('students', JSON.stringify(list)); return list; }
+        } catch(e) { console.warn("تعذّر جلب البيانات من Firebase:", e.message); }
+      }
+      return lsGetStudents();
+    };
+
+    window.adminLoginFirebase = async function(user, password) {
+      if (auth) {
+        const email = user.includes('@') ? user : user + '@adwaa.com';
+        try {
+          const cred = await auth.signInWithEmailAndPassword(email, password);
+          return { success: true, user: cred.user };
+        } catch(e) {}
+      }
+      if ((user === 'aa' || user === 'admin') && (password === '2020' || password === 'ali1424Ali')) {
+        return { success: true, user: { email: user } };
+      }
+      return { success: false, error: 'اسم المستخدم أو كلمة المرور غير صحيحة' };
+    };
+
+    window.findStudentById = async function(idNumber) {
+      if (db) {
+        try {
+          const snap = await db.collection("students").where("id", "==", idNumber).get();
+          const list = []; snap.forEach(d => list.push({ docId: d.id, ...d.data() }));
+          if (list.length > 0) return list;
+        } catch(e) {}
+      }
+      return lsGetStudents().filter(s => String(s.id) === String(idNumber));
+    };
+
+    window.saveInquiryData = async function(fileName, data) {
+      if (db) {
+        try {
+          const oldSnap = await db.collection("inquiryData").get();
+          const batch = db.batch();
+          oldSnap.forEach(d => batch.delete(d.ref));
+          await batch.commit();
+          const newBatch = db.batch();
+          data.forEach((row, i) => {
+            const ref = db.collection("inquiryData").doc('row_' + i);
+            newBatch.set(ref, { ...row, fileName, uploadedAt: new Date().toISOString() });
+          });
+          await newBatch.commit();
+          console.log("✅ بيانات Excel حُفظت في Firebase");
+        } catch(e) { console.warn("فشل حفظ Excel في Firebase:", e.message); }
+      }
+      localStorage.setItem('inquiryData', JSON.stringify(data));
+      return true;
+    };
+
+    window.loadInquiryData = async function() {
+      if (db) {
+        try {
+          const snap = await db.collection("inquiryData").get();
+          const list = [];
+          snap.forEach(d => list.push(d.data()));
+          if (list.length > 0) {
+            localStorage.setItem('inquiryData', JSON.stringify(list));
+            return list;
+          }
+        } catch(e) { console.warn("فشل تحميل Excel من Firebase:", e.message); }
+      }
+      try { return JSON.parse(localStorage.getItem('inquiryData') || '[]'); } catch(e) { return []; }
+    };
+    window.syncStudentsToLocal = async function() { return await window.getAllStudents(); };
+
+    window.submitRegistrationFirebase = async function(name, id, phone, gender, course, school) {
+      const studentData = { name, id, phone, gender, course, school, date: new Date().toLocaleDateString('ar-SA') };
+      return await window.saveToFirebase(studentData);
+    };
+  </script>
+  
+  <style>
+    /* ====== كل الـ CSS الموجود في موقعك الأصلي ====== */
+    :root {
+      --white: #ffffff;
+      --blue-deep: #0d2b5e;
+      --blue-main: #1a4fa0;
+      --blue-mid: #2563c4;
+      --blue-light: #4a8cf0;
+      --blue-pale: #dbeafe;
+      --blue-ultra: #eff6ff;
+      --gold: #f0b429;
+      --text-dark: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --shadow: 0 4px 24px rgba(26,79,160,0.10);
+      --shadow-lg: 0 8px 48px rgba(26,79,160,0.16);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Cairo', 'Tajawal', sans-serif;
+      background: var(--white);
+      color: var(--text-dark);
+      overflow-x: hidden;
+    }
+
+    /* ========== NAVBAR ========== */
+    nav {
+      position: fixed; top: 0; right: 0; left: 0; z-index: 1000;
+      background: rgba(255,255,255,0.97);
+      backdrop-filter: blur(12px);
+      border-bottom: 2px solid var(--blue-pale);
+      box-shadow: 0 2px 16px rgba(26,79,160,0.08);
+    }
+    .nav-inner {
+      max-width: 1200px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem; height: 70px;
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 0.75rem;
+      text-decoration: none;
+    }
+    .nav-logo-icon {
+      width: 46px; height: 46px;
+      background: linear-gradient(135deg, var(--blue-main), var(--blue-light));
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+      box-shadow: 0 2px 10px rgba(26,79,160,0.25);
+    }
+    .nav-logo-text { font-size: 1.05rem; font-weight: 900; color: var(--blue-deep); line-height: 1.2; }
+    .nav-logo-sub { font-size: 0.72rem; font-weight: 400; color: var(--blue-main); }
+    .nav-links { display: flex; align-items: center; gap: 0.25rem; }
+    .nav-links a {
+      text-decoration: none; color: var(--text-dark);
+      font-size: 0.9rem; font-weight: 600;
+      padding: 0.45rem 0.9rem; border-radius: 8px;
+      transition: all 0.2s;
+    }
+    .nav-links a:hover { background: var(--blue-pale); color: var(--blue-main); }
+    .nav-admin-btn {
+      background: var(--blue-main); color: var(--white) !important;
+      border-radius: 8px !important; padding: 0.45rem 1.1rem !important;
+      box-shadow: 0 2px 8px rgba(26,79,160,0.2);
+    }
+    .nav-admin-btn:hover { background: var(--blue-deep) !important; color: var(--white) !important; }
+
+    /* ========== HERO ========== */
+    .hero {
+      min-height: 100vh;
+      background: linear-gradient(135deg, var(--blue-deep) 0%, var(--blue-main) 55%, var(--blue-light) 100%);
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden; padding-top: 70px;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .hero-circle-1 {
+      position: absolute; width: 500px; height: 500px; border-radius: 50%;
+      background: rgba(255,255,255,0.05); top: -100px; left: -100px;
+    }
+    .hero-circle-2 {
+      position: absolute; width: 300px; height: 300px; border-radius: 50%;
+      background: rgba(255,255,255,0.06); bottom: 40px; right: -60px;
+    }
+    .hero-content {
+      text-align: center; color: var(--white); z-index: 2;
+      max-width: 780px; padding: 2rem;
+      animation: fadeUp 0.9s ease both;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 0.35rem 1.2rem; border-radius: 999px;
+      font-size: 0.85rem; font-weight: 600; margin-bottom: 1.5rem;
+      backdrop-filter: blur(8px);
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      font-weight: 900; line-height: 1.2; margin-bottom: 1rem;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.2);
+    }
+    .hero h1 span { color: var(--gold); }
+    .hero p {
+      font-size: 1.1rem; font-weight: 400; opacity: 0.9;
+      margin-bottom: 2.5rem; line-height: 1.8;
+    }
+    .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--gold); color: var(--blue-deep);
+      font-family: 'Cairo', sans-serif; font-size: 1rem; font-weight: 700;
+      padding: 0.85rem 2.2rem; border-radius: 12px; border: none;
+      cursor: pointer; text-decoration: none; display: inline-block;
+      box-shadow: 0 4px 20px rgba(240,180,41,0.4);
+      transition: all 0.2s;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(240,180,41,0.5); }
+    .btn-outline {
+      background: transparent; color: var(--white);
+      font-family: 'Cairo', sans-serif; font-size: 1rem; font-weight: 600;
+      padding: 0.85rem 2.2rem; border-radius: 12px;
+      border: 2px solid rgba(255,255,255,0.5);
+      cursor: pointer; text-decoration: none; display: inline-block;
+      transition: all 0.2s;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,0.1); border-color: white; }
+    .hero-stats {
+      display: flex; gap: 3rem; justify-content: center;
+      margin-top: 3.5rem; padding-top: 2.5rem;
+      border-top: 1px solid rgba(255,255,255,0.2);
+      flex-wrap: wrap;
+    }
+    .hero-stat-num { font-size: 2.2rem; font-weight: 900; color: var(--gold); }
+    .hero-stat-label { font-size: 0.85rem; opacity: 0.85; }
+
+    /* ========== SECTIONS COMMON ========== */
+    section { padding: 5rem 1.5rem; }
+    .section-inner { max-width: 1200px; margin: 0 auto; }
+    .section-header { text-align: center; margin-bottom: 3.5rem; }
+    .section-tag {
+      display: inline-block;
+      background: var(--blue-pale); color: var(--blue-main);
+      font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em;
+      padding: 0.3rem 1rem; border-radius: 999px; margin-bottom: 0.9rem;
+    }
+    .section-title {
+      font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+      font-weight: 900; color: var(--blue-deep); line-height: 1.25;
+      margin-bottom: 0.75rem;
+    }
+    .section-sub { color: var(--text-muted); font-size: 1rem; max-width: 560px; margin: 0 auto; line-height: 1.8; }
+    .divider {
+      width: 56px; height: 4px;
+      background: linear-gradient(90deg, var(--blue-main), var(--blue-light));
+      border-radius: 2px; margin: 1rem auto 0;
+    }
+
+    /* ========== COURSES ========== */
+    #courses { background: var(--blue-ultra); }
+    .courses-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.8rem;
+    }
+    .course-card {
+      background: var(--white); border-radius: 20px;
+      padding: 2rem; border: 1.5px solid var(--border);
+      box-shadow: var(--shadow); transition: all 0.3s;
+      position: relative; overflow: hidden;
+    }
+    .course-card::before {
+      content: ''; position: absolute; top: 0; right: 0; left: 0; height: 4px;
+      background: linear-gradient(90deg, var(--blue-main), var(--blue-light));
+    }
+    .course-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+    .course-icon {
+      width: 60px; height: 60px; border-radius: 16px;
+      background: var(--blue-pale);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem; margin-bottom: 1.2rem;
+    }
+    .course-card h3 { font-size: 1.25rem; font-weight: 800; color: var(--blue-deep); margin-bottom: 0.6rem; }
+    .course-card p { color: var(--text-muted); font-size: 0.92rem; line-height: 1.75; margin-bottom: 1.2rem; }
+    .course-features { list-style: none; }
+    .course-features li {
+      font-size: 0.88rem; color: var(--text-dark); padding: 0.3rem 0;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .course-features li::before { content: '✓'; color: var(--blue-main); font-weight: 700; }
+
+    /* ====== قسم الإعلانات ====== */
+    .ad-section {
+      background: var(--white);
+      border-radius: 24px;
+      padding: 2rem;
+      margin-top: 3rem;
+      box-shadow: var(--shadow-lg);
+      border: 2px solid var(--gold);
+      position: relative;
+      overflow: hidden;
+    }
+    .ad-section::before {
+      content: '📢 إعلان';
+      position: absolute;
+      top: 12px;
+      left: 20px;
+      background: var(--gold);
+      color: var(--blue-deep);
+      font-weight: 900;
+      font-size: 0.75rem;
+      padding: 0.2rem 1rem;
+      border-radius: 20px;
+      letter-spacing: 0.05em;
+    }
+    .ad-content {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding-top: 1.5rem;
+    }
+    .ad-image {
+      flex: 1 1 300px;
+      max-width: 500px;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .ad-image img {
+      width: 100%;
+      height: auto;
+      display: block;
+      transition: transform 0.3s;
+    }
+    .ad-image img:hover { transform: scale(1.02); }
+    .ad-text {
+      flex: 1 1 300px;
+      text-align: right;
+    }
+    .ad-text h3 {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--blue-deep);
+      margin-bottom: 0.75rem;
+    }
+    .ad-text h3 span { color: var(--gold); }
+    .ad-text p {
+      color: var(--text-muted);
+      font-size: 1rem;
+      line-height: 1.8;
+      margin-bottom: 1.2rem;
+    }
+    .ad-text .btn-primary { display: inline-block; }
+
+    @media (max-width: 768px) {
+      .ad-content { flex-direction: column; text-align: center; }
+      .ad-text { text-align: center; }
+      .ad-section::before { left: 50%; transform: translateX(-50%); top: 10px; }
+    }
+
+    /* ========== SERVICES ========== */
+    .services-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem;
+    }
+    .service-card {
+      background: var(--white); border-radius: 16px;
+      padding: 1.75rem; border: 1.5px solid var(--border);
+      text-align: center; transition: all 0.3s;
+      box-shadow: var(--shadow);
+    }
+    .service-card:hover { border-color: var(--blue-light); box-shadow: var(--shadow-lg); transform: translateY(-4px); }
+    .service-icon { font-size: 2.4rem; margin-bottom: 1rem; }
+    .service-card h3 { font-size: 1.05rem; font-weight: 800; color: var(--blue-deep); margin-bottom: 0.5rem; }
+    .service-card p { color: var(--text-muted); font-size: 0.88rem; line-height: 1.7; }
+
+    /* ========== TEACHERS ========== */
+    #teachers { background: var(--blue-ultra); }
+    .teachers-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.8rem;
+    }
+    .teacher-card {
+      background: var(--white); border-radius: 20px;
+      padding: 2rem; text-align: center; border: 1.5px solid var(--border);
+      box-shadow: var(--shadow); transition: all 0.3s;
+    }
+    .teacher-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
+    .teacher-avatar {
+      width: 90px; height: 90px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue-main), var(--blue-light));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.2rem; margin: 0 auto 1.2rem;
+      box-shadow: 0 4px 16px rgba(26,79,160,0.25);
+    }
+    .teacher-card h3 { font-size: 1.1rem; font-weight: 800; color: var(--blue-deep); margin-bottom: 0.3rem; }
+    .teacher-role {
+      display: inline-block;
+      background: var(--blue-pale); color: var(--blue-main);
+      font-size: 0.8rem; font-weight: 600; padding: 0.2rem 0.8rem;
+      border-radius: 999px; margin-bottom: 0.75rem;
+    }
+    .teacher-card p { color: var(--text-muted); font-size: 0.88rem; line-height: 1.7; }
+    .teacher-stars { color: var(--gold); font-size: 1rem; margin-top: 0.75rem; letter-spacing: 2px; }
+
+    /* ========== RESULTS - SLIDER ========== */
+    .slider-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      background: var(--blue-ultra);
+      border-radius: 24px;
+      padding: 1.5rem;
+      margin-top: 1rem;
+    }
+    .slider-btn {
+      background: var(--blue-main);
+      color: white;
+      border: none;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: var(--shadow);
+    }
+    .slider-btn:hover {
+      background: var(--blue-deep);
+      transform: scale(1.05);
+    }
+    .slider-main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      max-height: 600px;
+      overflow: hidden;
+      border-radius: 16px;
+      background: var(--white);
+      box-shadow: var(--shadow-lg);
+    }
+    .slider-img {
+      max-width: 100%;
+      max-height: 550px;
+      object-fit: contain;
+      display: block;
+      border-radius: 12px;
+    }
+    .slider-dots {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--border);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .dot.active {
+      background: var(--blue-main);
+      width: 28px;
+      border-radius: 6px;
+    }
+    @media (max-width: 768px) {
+      .slider-btn { width: 36px; height: 36px; font-size: 1rem; }
+      .slider-img { max-height: 350px; }
+    }
+
+    /* ========== TRIAL TEST ========== */
+    #trial { background: var(--blue-ultra); }
+    .trial-container {
+      max-width: 760px; margin: 0 auto;
+      background: var(--white); border-radius: 24px;
+      padding: 2.5rem; border: 1.5px solid var(--border);
+      box-shadow: var(--shadow-lg);
+    }
+    .trial-header { text-align: center; margin-bottom: 2rem; }
+    .trial-header h3 { font-size: 1.5rem; font-weight: 900; color: var(--blue-deep); }
+    .trial-header p { color: var(--text-muted); font-size: 0.92rem; margin-top: 0.4rem; }
+    .trial-type-selector {
+      display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;
+    }
+    .trial-type-btn {
+      flex: 1; min-width: 140px;
+      padding: 1rem; border-radius: 12px; border: 2px solid var(--border);
+      background: var(--white); cursor: pointer; text-align: center;
+      font-family: 'Cairo', sans-serif; font-size: 0.9rem; font-weight: 600;
+      color: var(--text-dark); transition: all 0.2s;
+    }
+    .trial-type-btn.active, .trial-type-btn:hover {
+      border-color: var(--blue-main); background: var(--blue-pale); color: var(--blue-deep);
+    }
+    .trial-type-btn .t-icon { font-size: 1.6rem; display: block; margin-bottom: 0.3rem; }
+    .question-box { margin-bottom: 1.75rem; }
+    .question-num {
+      font-size: 0.8rem; font-weight: 700; color: var(--blue-main);
+      letter-spacing: 0.06em; margin-bottom: 0.4rem;
+    }
+    .question-text { font-size: 1.05rem; font-weight: 700; color: var(--text-dark); margin-bottom: 1rem; }
+    .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
+    .option-btn {
+      padding: 0.75rem 1rem; border-radius: 10px;
+      border: 2px solid var(--border); background: var(--white);
+      font-family: 'Cairo', sans-serif; font-size: 0.92rem; font-weight: 600;
+      color: var(--text-dark); cursor: pointer; text-align: right;
+      transition: all 0.2s;
+    }
+    .option-btn:hover { border-color: var(--blue-light); background: var(--blue-ultra); }
+    .option-btn.correct { border-color: #059669; background: #ecfdf5; color: #065f46; }
+    .option-btn.wrong { border-color: #dc2626; background: #fef2f2; color: #991b1b; }
+    .trial-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 2rem; flex-wrap: wrap; gap: 1rem; }
+    .progress-bar { flex: 1; height: 6px; background: var(--border); border-radius: 3px; margin-left: 1rem; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--blue-main), var(--blue-light)); transition: width 0.4s; }
+    .trial-result-box {
+      text-align: center; padding: 2rem;
+      background: linear-gradient(135deg, var(--blue-pale), var(--blue-ultra));
+      border-radius: 16px; display: none;
+    }
+    .trial-result-score { font-size: 3.5rem; font-weight: 900; color: var(--blue-deep); }
+    .trial-result-label { font-size: 1rem; color: var(--text-muted); margin-top: 0.3rem; }
+
+    /* ========== REGISTRATION ========== */
+    #register { background: var(--white); }
+    .register-container {
+      max-width: 680px; margin: 0 auto;
+      background: var(--white); border-radius: 24px;
+      padding: 2.5rem; border: 1.5px solid var(--border);
+      box-shadow: var(--shadow-lg);
+    }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+    .form-group.full { grid-column: span 2; }
+    label { font-size: 0.88rem; font-weight: 700; color: var(--text-dark); }
+    label span { color: #dc2626; }
+    input, select {
+      padding: 0.75rem 1rem; border: 1.5px solid var(--border); border-radius: 10px;
+      font-family: 'Cairo', sans-serif; font-size: 0.92rem; color: var(--text-dark);
+      background: var(--white); outline: none; transition: border-color 0.2s;
+    }
+    input:focus, select:focus { border-color: var(--blue-main); box-shadow: 0 0 0 3px rgba(26,79,160,0.1); }
+    .submit-btn {
+      width: 100%; margin-top: 1.2rem;
+      background: linear-gradient(135deg, var(--blue-main), var(--blue-mid));
+      color: var(--white); font-family: 'Cairo', sans-serif;
+      font-size: 1.05rem; font-weight: 700; padding: 1rem;
+      border-radius: 12px; border: none; cursor: pointer;
+      box-shadow: 0 4px 20px rgba(26,79,160,0.3);
+      transition: all 0.2s;
+    }
+    .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(26,79,160,0.4); }
+    .success-msg {
+      display: none; text-align: center; padding: 2rem;
+      background: #ecfdf5; border-radius: 16px; border: 1.5px solid #6ee7b7;
+      color: #065f46;
+    }
+    .success-msg .s-icon { font-size: 3rem; margin-bottom: 0.75rem; }
+    .success-msg h3 { font-size: 1.3rem; font-weight: 800; }
+
+    /* ========== ADMIN PAGE ========== */
+    #admin-page {
+      display: none; position: fixed; inset: 0; z-index: 2000;
+      background: var(--blue-ultra); overflow-y: auto; padding: 2rem;
+    }
+    .admin-login-box {
+      max-width: 440px; margin: 80px auto;
+      background: var(--white); border-radius: 24px;
+      padding: 2.5rem; box-shadow: var(--shadow-lg);
+      border: 1.5px solid var(--border); text-align: center;
+    }
+    .admin-login-box .al-icon { font-size: 3rem; margin-bottom: 1rem; }
+    .admin-login-box h2 { font-size: 1.5rem; font-weight: 900; color: var(--blue-deep); margin-bottom: 0.3rem; }
+    .admin-login-box p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+    .admin-panel { max-width: 1100px; margin: 0 auto; display: none; }
+    .admin-topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--white); border-radius: 16px; padding: 1rem 1.5rem;
+      margin-bottom: 1.5rem; box-shadow: var(--shadow);
+    }
+    .admin-topbar h2 { font-size: 1.2rem; font-weight: 900; color: var(--blue-deep); }
+    .admin-stats {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;
+    }
+    .admin-stat-card {
+      background: var(--white); border-radius: 14px; padding: 1.25rem;
+      text-align: center; box-shadow: var(--shadow); border: 1.5px solid var(--border);
+    }
+    .admin-stat-card .as-num { font-size: 2rem; font-weight: 900; color: var(--blue-main); }
+    .admin-stat-card .as-label { font-size: 0.82rem; color: var(--text-muted); }
+    .admin-table-wrap {
+      background: var(--white); border-radius: 16px; padding: 1.5rem; box-shadow: var(--shadow); overflow-x: auto;
+    }
+    .admin-table-wrap h3 { font-size: 1.05rem; font-weight: 800; color: var(--blue-deep); margin-bottom: 1rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th { background: var(--blue-pale); color: var(--blue-deep); padding: 0.75rem 1rem; text-align: right; font-weight: 700; white-space: nowrap; }
+    td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); color: var(--text-dark); white-space: nowrap; }
+    tr:hover td { background: var(--blue-ultra); }
+    .badge-male { background: #dbeafe; color: #1e40af; font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 6px; }
+    .badge-female { background: #fce7f3; color: #9d174d; font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 6px; }
+    .badge-qudurat { background: #d1fae5; color: #065f46; font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 6px; }
+    .badge-tahsili { background: #ede9fe; color: #4c1d95; font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 6px; }
+    .badge-both { background: #fef3c7; color: #92400e; font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 6px; }
+
+    /* ========== FOOTER ========== */
+    footer {
+      background: var(--blue-deep); color: rgba(255,255,255,0.8);
+      padding: 3rem 1.5rem 1.5rem; text-align: center;
+    }
+    .footer-logo { font-size: 1.3rem; font-weight: 900; color: var(--white); margin-bottom: 0.5rem; }
+    .footer-tagline { font-size: 0.9rem; opacity: 0.7; margin-bottom: 1.5rem; }
+    .footer-links { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem; }
+    .footer-links a { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--gold); }
+    .footer-divider { border: none; border-top: 1px solid rgba(255,255,255,0.1); margin-bottom: 1rem; }
+    .footer-copy { font-size: 0.82rem; opacity: 0.5; }
+
+    /* ========== HAMBURGER MENU ========== */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+    .hamburger:hover { background: var(--blue-pale); }
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 2.5px;
+      background: var(--blue-deep);
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
+
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: 70px;
+      right: 0;
+      left: 0;
+      background: rgba(255,255,255,0.98);
+      backdrop-filter: blur(12px);
+      border-bottom: 2px solid var(--blue-pale);
+      box-shadow: 0 8px 24px rgba(26,79,160,0.12);
+      z-index: 999;
+      padding: 1rem 1.5rem;
+      flex-direction: column;
+      gap: 0.25rem;
+      animation: slideDown 0.2s ease;
+    }
+    .mobile-menu.open { display: flex; }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .mobile-menu a {
+      text-decoration: none;
+      color: var(--text-dark);
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 0.7rem 1rem;
+      border-radius: 10px;
+      transition: all 0.2s;
+      display: block;
+    }
+    .mobile-menu a:hover { background: var(--blue-pale); color: var(--blue-main); }
+    .mobile-menu .nav-admin-btn {
+      background: var(--blue-main) !important;
+      color: var(--white) !important;
+      margin-top: 0.25rem;
+      text-align: center;
+    }
+    .mobile-menu .nav-admin-btn:hover { background: var(--blue-deep) !important; }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-group.full { grid-column: span 1; }
+      .options-grid { grid-template-columns: 1fr; }
+      .hero-stats { gap: 1.5rem; }
+    }
+
+    .teacher-avatar img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <div class="nav-logo-icon">💡</div>
+      <div>
+        <div class="nav-logo-text">الأضواء المنيرة</div>
+        <div class="nav-logo-sub">المعهد التعليمي</div>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="#courses">الدورات</a>
+      <a href="#services">الخدمات</a>
+      <a href="#teachers">المعلمون</a>
+      <a href="#results">النتائج</a>
+      <a href="#trial">اختبار تجريبي</a>
+      <a href="#register">التسجيل</a>
+      <a href="#inquiry">🎓 استعلام الطلاب</a>
+      <a href="#" onclick="showAdminPage()" class="nav-admin-btn">🔐 الإدارة</a>
+    </div>
+    <button class="hamburger" id="hamburger-btn" onclick="toggleMobileMenu()" aria-label="القائمة">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobile-menu">
+  <a href="#courses" onclick="closeMobileMenu()">📚 الدورات</a>
+  <a href="#services" onclick="closeMobileMenu()">⚡ الخدمات</a>
+  <a href="#teachers" onclick="closeMobileMenu()">👨‍🏫 المعلمون</a>
+  <a href="#results" onclick="closeMobileMenu()">🏆 النتائج</a>
+  <a href="#trial" onclick="closeMobileMenu()">🧪 اختبار تجريبي</a>
+  <a href="#register" onclick="closeMobileMenu()">📋 التسجيل</a>
+  <a href="#inquiry" onclick="closeMobileMenu()">🎓 استعلام الطلاب</a>
+  <a href="#" onclick="closeMobileMenu(); showAdminPage();" class="nav-admin-btn">🔐 الإدارة</a>
+</div>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="hero-circle-1"></div>
+  <div class="hero-circle-2"></div>
+  <div class="hero-content">
+    <div class="hero-badge">✨ المعهد التعليمي المتميز في المملكة</div>
+    <h1>شركة <span>الأضواء المنيرة</span><br/>التعليمية</h1>
+    
+    <p>نُعدّك للتفوق في اختبارات القدرات والتحصيلي بأساليب تدريسية متطورة ومعلمين متخصصين، لنحقق معاً أعلى الدرجات وأفضل النتائج.</p>
+   
+   <p>للتواصل 0578083447 </p>
+   <a href="https://wa.me/9660578083447" target="_blank"> 
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" width="40" height="40" alt="WhatsApp">
+</a>
+    <div class="hero-btns">
+      <a href="#register" class="btn-primary">سجّل الآن</a>
+      <a href="#trial" class="btn-outline">🧪 اختبار تجريبي</a>
+    </div>
+    <div class="hero-stats">
+      <div><div class="hero-stat-num">+500</div><div class="hero-stat-label">طالب ملتحق</div></div>
+      <div><div class="hero-stat-num">95%</div><div class="hero-stat-label">معدل النجاح</div></div>
+      <div><div class="hero-stat-num">100+</div><div class="hero-stat-label">أعلى درجة محققة</div></div>
+      <div><div class="hero-stat-num">10+</div><div class="hero-stat-label">معلم متخصص</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== COURSES ===== -->
+<section id="courses">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-tag">📚 دوراتنا التعليمية</div>
+      <h2 class="section-title">برامج إعداد متكاملة</h2>
+      <p class="section-sub">نقدم دورات شاملة ومتخصصة في اختباري القدرات والتحصيل الدراسي بأعلى المستويات</p>
+      <div class="divider"></div>
+    </div>
+    <div class="courses-grid">
+      <div class="course-card">
+        <div class="course-icon">🎯</div>
+        <h3>دورة القدرات العامة</h3>
+        <p>إعداد متكامل لاختبار القدرات العامة يشمل التحليل الكمي والتحليل اللفظي بأسلوب علمي مدروس.</p>
+        <ul class="course-features">
+          <li>مواد شاملة للتحليل الكمي</li>
+          <li>تقوية مهارات التحليل اللفظي</li>
+          <li>اختبارات محاكاة حقيقية</li>
+          <li>متابعة مستمرة لكل طالب</li>
+          <li>حلقات مراجعة مكثفة</li>
+        </ul>
+      </div>
+      <div class="course-card">
+        <div class="course-icon">📖</div>
+        <h3>دورة التحصيل الدراسي</h3>
+        <p>تغطية كاملة لجميع مواد التحصيل الدراسي وتدريب على أسلوب الاختبارات الرسمية.</p>
+        <ul class="course-features">
+          <li>تغطية مواد العلوم والرياضيات</li>
+          <li>مراجعة اللغة العربية والإنجليزية</li>
+          <li>نماذج اختبارات سابقة</li>
+          <li>تقييم دوري للمستوى</li>
+          <li>خطة دراسية شخصية</li>
+        </ul>
+      </div>
+      <div class="course-card">
+        <div class="course-icon">🚀</div>
+        <h3>البرنامج المتكامل</h3>
+        <p>الجمع بين دورتي القدرات والتحصيل في برنامج شامل للوصول لأعلى الدرجات.</p>
+        <ul class="course-features">
+          <li>تغطية الاختبارين معاً</li>
+          <li>جلسات تدريب مكثفة</li>
+          <li>إرشاد أكاديمي متكامل</li>
+          <li>تقارير تقدم أسبوعية</li>
+          <li>دعم 24/7 عبر الإنترنت</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ===== قسم الإعلانات الجديد ===== -->
+    <div class="ad-section" id="ad-section">
+      <div class="ad-content">
+        <div class="ad-image">
+          <!-- غيّر مسار الصورة حسب الحاجة، ارفع صورتك في مجلد الموقع بنفس الاسم -->
+          <img src="ad-banner.jpg" alt="إعلان دورات الأضواء المنيرة" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'background:var(--blue-pale);border-radius:16px;padding:3rem 1.5rem;text-align:center;color:var(--blue-deep);font-weight:700;\'>📢 أضف صورتك هنا<br/><span style=\'font-size:0.8rem;font-weight:400;color:var(--text-muted);\'>استبدل ad-banner.jpg بصورتك</span></div>'">
+        </div>
+        <div class="ad-text">
+          <h3>🎯 <span>تخفيضات خاصة</span> على التسجيل المبكر!</h3>
+          <p>اغتنم الفرصة وسجّل الآن في دورات القدرات والتحصيل بأسعار مخفضة لفترة محدودة. مقاعد محدودة – لا تفوّت فرصة التفوق!</p>
+          <a href="#register" class="btn-primary">سجّل الآن واحصل على الخصم 🏷️</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SERVICES ===== -->
+<section id="services">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-tag">⚡ خدماتنا</div>
+      <h2 class="section-title">ما يميز الأضواء المنيرة</h2>
+      <p class="section-sub">نقدم بيئة تعليمية متكاملة تضمن لك أعلى مستوى من التحضير والجاهزية</p>
+      <div class="divider"></div>
+    </div>
+    <div class="services-grid">
+      <div class="service-card"><div class="service-icon">📱</div><h3>منصة تعليمية رقمية</h3><p>وصول لجميع المواد والمحاضرات المسجلة في أي وقت ومن أي مكان</p></div>
+      <div class="service-card"><div class="service-icon">📝</div><h3>اختبارات تدريبية</h3><p>مئات الأسئلة التدريبية المحدّثة بما يتوافق مع أسلوب الاختبارات الرسمية</p></div>
+      <div class="service-card"><div class="service-icon">👥</div><h3>مجموعات صغيرة</h3><p>فصول دراسية صغيرة تضمن اهتماماً شخصياً بكل طالب وتفاعلاً أكبر</p></div>
+      <div class="service-card"><div class="service-icon">📊</div><h3>تقارير دورية</h3><p>تقييم مستمر وتقارير مفصّلة لأداء الطالب ونقاط القوة والضعف</p></div>
+      <div class="service-card"><div class="service-icon">🎓</div><h3>مستشارون أكاديميون</h3><p>متخصصون لمساعدة الطالب في اختيار التخصص وخطة الدراسة المثلى</p></div>
+      <div class="service-card"><div class="service-icon">🏆</div><h3>ضمان النتائج</h3><p>التزامنا برفع درجة الطالب بشكل ملموس مقارنة بمستواه السابق</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TEACHERS ===== -->
+<section id="teachers">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-tag">👨‍🏫 كادرنا التعليمي</div>
+      <h2 class="section-title">نخبة من المعلمين المتخصصين</h2>
+      <p class="section-sub">فريق من أفضل المدرسين ذوي الخبرة الواسعة في إعداد الطلاب لاختبارات القبول الجامعي</p>
+      <div class="divider"></div>
+    </div>
+    
+    <div class="teachers-grid">
+      <div class="teacher-card"><div class="teacher-avatar">👨‍🏫</div><h3>أ. محمد عادل (أبو يوسف)</h3><span class="teacher-role">قدرات كمي</span><p> خبير في تدريب القدرات الكمي بخبرة تمتد لأكثر من 20 عامًا في المجال التعليمي. يشغل منصب مدير التدريب، وساهم في إعداد وتدريب آلاف الطلاب على اختبارات القدرات، مع خبرة واسعة في تطوير البرامج التدريبية ورفع كفاءة المدربين وتحقيق نتائج متميزة للمتدربين</p><div class="teacher-stars">★★★★★</div></div>
+      <div class="teacher-card"><div class="teacher-avatar">👨‍🏫</div><h3>د. محمود الشاذلي</h3><span class="teacher-role">قدرات كمي</span><p> متخصص في المجال التعليمي والتدريب الأكاديمي، بخبرة تزيد على 20 عامًا في تدريب الطلاب وتأهيلهم للاختبارات القياسية. يتمتع بخبرة واسعة في تصميم وتطوير البرامج التعليمية، وساهم في إعداد وتأهيل أعداد كبيرة من الطلاب لتحقيق نتائج متميزة، كما يشارك في تقديم الاستشارات والتطوير الأكاديمي والتدريبي</p><div class="teacher-stars">★★★★★</div></div>
+      <div class="teacher-card"><div class="teacher-avatar">👨‍🏫</div><h3>أ. محمد عبدالفتاح</h3><span class="teacher-role">قدرات كمي</span><p> بكالوريوس رياضيات، معلم ومدرب قدرات متخصص في القسم الكمي، يمتلك خبرة تزيد على 12 عامًا في التعليم والتدريب. ساهم في تأهيل العديد من الطلاب لاختبارات القدرات من خلال أساليب تدريبية فعّالة، ويتميز بقدرته على تبسيط المفاهيم الرياضية وتنمية مهارات حل المسائل وتحقيق نتائج متميزة للمتدربين</p><div class="teacher-stars">★★★★★</div></div>
+      
+      <div class="teacher-card"><div class="teacher-avatar">👨‍🏫</div><h3>أ. أحمد إبراهيم</h3><span class="teacher-role">قدرات كمي</span><p> بكالوريوس رياضيات، معلم ومدرب قدرات متخصص في القسم الكمي، يمتلك خبرة تزيد على 12 عامًا في التعليم والتدريب. ساهم في تأهيل العديد من الطلاب لاختبارات القدرات من خلال أساليب تدريبية فعّالة، ويتميز بقدرته على تبسيط المفاهيم الرياضية وتنمية مهارات حل المسائل وتحقيق نتائج متميزة للمتدربين</p><div class="teacher-stars">★★★★★</div></div>
+        
+         
+
+                   <div class="teacher-card"><div class="teacher-avatar">👨‍🏫</div><h3>أ. محمد صلاح</h3><span class="teacher-role">تحصيلي كيمياء</span><p> يُعد الأستاذ محمد صلاح من الكفاءات التعليمية المتميزة في مجال الكيمياء، حيث يمتلك خبرة تزيد على 20 عامًا في التدريس والتدريب. تخصص في إعداد طلاب المرحلة الثانوية لاختبار التحصيلي، وساهم في تأهيل آلاف الطلاب من خلال برامج تدريبية متخصصة تعتمد على تبسيط المفاهيم الكيميائية، وتنمية مهارات التحليل والاستنتاج، والتدريب المكثف على أسئلة الاختبارات.
+
+يتميز بأسلوب تعليمي احترافي يجمع بين الشرح الواضح والتطبيق العملي، مما يساعد الطلاب على رفع مستواهم العلمي وتحقيق نتائج متميزة في اختبار التحصيلي. كما يحرص على مواكبة أحدث أساليب التعليم والتقويم لضمان تقديم تجربة تعليمية فعّالة ومثمرة للطلاب</p><div class="teacher-stars">★★★★★</div></div>
+
+
+                  <div class="teacher-card"><div class="teacher-avatar">👨‍🏫</div><h3>أ. أسامة عويس </h3><span class="teacher-role">تحصيلي أحياء</span><p> ييتمتع الأستاذ أسامة عويس بخبرة تمتد لأكثر من 15 عامًا في تدريس مادة الأحياء وتدريب الطلاب على اختبار التحصيلي. يمتلك خبرة واسعة في تبسيط المفاهيم العلمية وشرح موضوعات الأحياء بأسلوب سهل ومنظم يساعد الطلاب على الفهم العميق والاستيعاب السريع.
+
+خلال مسيرته التعليمية، ساهم في إعداد وتأهيل أعداد كبيرة من الطلاب لتحقيق نتائج متميزة في اختبار التحصيلي، من خلال برامج تدريبية متخصصة تركز على فهم المفاهيم الأساسية، وتنمية مهارات حل الأسئلة، والتدريب على أحدث أنماط الاختبارات. ويتميز بأسلوب تفاعلي يشجع الطلاب على التعلم بثقة وتحقيق أفضل أداء أكاديمي</p><div class="teacher-stars">★★★★★</div></div>
+
+      <div class="teacher-card"><div class="teacher-avatar">👨‍🏫</div><h3>أ. أحمد ذياب  </h3><span class="teacher-role">تحصيلي أحياء</span><p> ييتمتع الأستاذ أحمد ذياب بخبرة تزيد على 20 عامًا في تدريس الفيزياء وتدريب الطلاب على اختبار التحصيلي. يمتلك خبرة واسعة في تبسيط المفاهيم الفيزيائية وشرح القوانين والنظريات بأسلوب عملي ومنظم يساعد الطلاب على الفهم والاستيعاب وربط المفاهيم بالتطبيقات المختلفة.
+
+خلال مسيرته التعليمية، ساهم في إعداد وتأهيل أعداد كبيرة من الطلاب لتحقيق نتائج متميزة في اختبار التحصيلي، من خلال برامج تدريبية متخصصة تركز على بناء الأساس العلمي السليم، وتنمية مهارات التفكير والتحليل، والتدريب المكثف على أسئلة الاختبارات. ويتميز بأسلوب تعليمي تفاعلي يسهم في رفع مستوى الطلاب وزيادة ثقتهم في التعامل مع أسئلة الفيزياء بكفاءة وتميز</p><div class="teacher-stars">★★★★★</div></div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== RESULTS - معرض الصور المنزلق ===== -->
+<section id="results">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-tag">🏆 إنجازات طلابنا</div>
+      <h2 class="section-title">درجات الطلاب</h2>
+      <p class="section-sub">نموذج من نتائج طلابنا المتميزين</p>
+      <div class="divider"></div>
+    </div>
+    <div class="slider-container">
+      <button class="slider-btn slider-prev" onclick="prevImage()">❮</button>
+      <div class="slider-main">
+        <img id="slider-image" src="" alt="صورة الدرجة" class="slider-img">
+      </div>
+      <button class="slider-btn slider-next" onclick="nextImage()">❯</button>
+    </div>
+    <div class="slider-dots" id="slider-dots"></div>
+  </div>
+</section>
+
+<!-- ===== TRIAL TEST ===== -->
+<section id="trial">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-tag">🧪 اختبار تجريبي</div>
+      <h2 class="section-title">جرّب مستواك الآن</h2>
+      <p class="section-sub">اختبر نفسك بأسئلة تدريبية مشابهة للاختبارات الرسمية مجاناً</p>
+      <div class="divider"></div>
+    </div>
+    <div class="trial-container">
+      <div class="trial-header">
+        <h3 id="trial-title">اختر نوع الاختبار</h3>
+        <p id="trial-subtitle">اختر الاختبار الذي تريد التدرب عليه</p>
+      </div>
+      <div class="trial-type-selector" id="type-selector">
+        <button class="trial-type-btn" onclick="startTrial('qudurat')"><span class="t-icon">🎯</span>قدرات عامة</button>
+        <button class="trial-type-btn" onclick="startTrial('tahsili')"><span class="t-icon">📖</span>تحصيل دراسي</button>
+      </div>
+      <div id="trial-questions" style="display:none">
+        <div class="question-box">
+          <div class="question-num" id="q-num">سؤال 1 من 5</div>
+          <div class="question-text" id="q-text"></div>
+          <div class="options-grid" id="q-options"></div>
+        </div>
+        <div class="trial-footer">
+          <button class="btn-primary" id="next-btn" onclick="nextQuestion()" style="display:none">التالي ←</button>
+          <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:20%"></div></div>
+          <span id="score-counter" style="font-size:0.88rem;color:var(--text-muted);margin-right:1rem">0 / 0</span>
+        </div>
+      </div>
+      <div class="trial-result-box" id="trial-result">
+        <div class="trial-result-score" id="result-score"></div>
+        <div class="trial-result-label" id="result-label"></div>
+        <br/>
+        <button class="btn-primary" onclick="resetTrial()">🔄 إعادة الاختبار</button>
+        <a href="#register" class="btn-outline" style="display:inline-block;margin-top:0.5rem">سجّل في الدورة</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== REGISTRATION ===== -->
+<section id="register">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-tag">📋 التسجيل</div>
+      <h2 class="section-title">سجّل في دوراتنا الآن</h2>
+      <p class="section-sub">أدخل بياناتك لحجز مقعدك في أقرب دورة قادمة</p>
+      <div class="divider"></div>
+    </div>
+    <div class="register-container">
+      <div id="reg-form">
+        <div class="form-grid">
+          <div class="form-group"><label>الاسم الكامل <span>*</span></label><input type="text" id="r-name" placeholder="أدخل اسمك الكامل"/></div>
+          <div class="form-group"><label>رقم الهوية <span>*</span></label><input type="text" id="r-id" placeholder="10 أرقام" maxlength="10"/></div>
+          <div class="form-group"><label>رقم الجوال <span>*</span></label><input type="text" id="r-phone" placeholder="05xxxxxxxx" maxlength="10"/></div>
+          <div class="form-group"><label>نوع الجنس <span>*</span></label><select id="r-gender"><option value="">-- اختر --</option><option value="ذكر">ذكر</option><option value="أنثى">أنثى</option></select></div>
+         
+          <div class="form-group"><label>نوع الدورة <span>*</span></label><select id="r-course"><option value="">-- اختر الدورة --</option><option value="قدرات">دورة القدرات العامة</option><option value="تحصيلي">دورة التحصيل الدراسي</option><option value="كلاهما">البرنامج المتكامل (قدرات + تحصيل)</option></select></div>
+          <div class="form-group"><label>اسم المدرسة <span>*</span></label><input type="text" id="r-school" placeholder="اسم مدرستك"/></div>
+        </div>
+        <button class="submit-btn" onclick="submitRegistrationFirebaseWrapper()">✅ إرسال التسجيل</button>
+      </div>
+      <div class="success-msg" id="reg-success"><div class="s-icon">🎉</div><h3>تم التسجيل بنجاح!</h3><p>سيتواصل معك فريقنا خلال 24 ساعة على رقم جوالك.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== INQUIRY ===== -->
+<section id="inquiry" style="background:var(--white);">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-tag">🎓 استعلام الطلاب</div>
+      <h2 class="section-title">ابحث عن بياناتك</h2>
+      <p class="section-sub">أدخل رقم هويتك للاطلاع على بيانات تسجيلك والجدول الدراسي</p>
+      <div class="divider"></div>
+    </div>
+    <div style="max-width:580px;margin:0 auto;">
+      <div style="background:var(--blue-ultra);border-radius:16px;padding:1.75rem;border:1px solid var(--blue-pale);box-shadow:var(--shadow);">
+        <label style="font-size:0.88rem;font-weight:700;color:var(--blue-deep);margin-bottom:0.6rem;display:block;">رقم الهوية الوطنية</label>
+        <div style="display:flex;gap:10px;">
+          <input type="text" id="inq-id-input" placeholder="أدخل رقم الهوية (10 أرقام)..." maxlength="10" inputmode="numeric"
+            style="flex:1;font-family:Cairo,sans-serif;font-size:15px;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;outline:none;color:var(--text-dark);background:#fff;"
+            onfocus="this.style.borderColor='var(--blue-main)'" onblur="this.style.borderColor='var(--border)'"
+            onkeydown="if(event.key==='Enter') inqSearch()"/>
+          <button onclick="inqSearch()" class="btn-primary" style="white-space:nowrap;padding:11px 22px;border-radius:10px;">🔍 بحث</button>
+        </div>
+        <div style="font-size:0.78rem;color:var(--text-muted);margin-top:6px;">* رقم الهوية الوطنية المكوّن من 10 أرقام</div>
+      </div>
+      <div id="inq-result" style="margin-top:1.25rem;"></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="footer-logo">💡 شركة الأضواء المنيرة التعليمية</div>
+  <div class="footer-tagline">نُضيء طريقك نحو التفوق والنجاح</div>
+  <div class="footer-links">
+    <a href="#courses">الدورات</a>
+    <a href="#services">الخدمات</a>
+    <a href="#teachers">المعلمون</a>
+    <a href="#results">النتائج</a>
+    <a href="#trial">اختبار تجريبي</a>
+    <a href="#register">التسجيل</a>
+    <a href="#inquiry">استعلام الطلاب</a>
+    <a href="#" onclick="showAdminPage()">صفحة الإدارة</a>
+  </div>
+  <hr class="footer-divider"/>
+  <div class="footer-copy">©️ 2025 شركة الأضواء المنيرة التعليمية. جميع الحقوق محفوظة.</div>
+</footer>
+
+<!-- ===== ADMIN PAGE ===== -->
+<div id="admin-page">
+  <div class="admin-login-box" id="admin-login">
+    <div class="al-icon">🔐</div>
+    <h2>صفحة الإدارة</h2>
+    <p>هذه الصفحة مخصصة لموظفي المعهد فقط</p>
+    <div class="form-group" style="margin-bottom:1rem;text-align:right"><label>اسم المستخدم</label><input type="text" id="admin-user" placeholder="aa" onkeydown="if(event.key==='Enter') adminLogin()"/></div>
+    <div class="form-group" style="margin-bottom:1.5rem;text-align:right"><label>كلمة المرور</label><input type="password" id="admin-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter') adminLogin()"/></div>
+    <button class="submit-btn" onclick="adminLogin()">دخول</button><br/><br/>
+    <a href="#" onclick="hideAdminPage()" style="color:var(--text-muted);font-size:0.9rem;text-decoration:none">← العودة للموقع</a>
+  </div>
+  <div class="admin-panel" id="admin-panel">
+    <div class="admin-topbar"><h2>🏫 لوحة تحكم الأضواء المنيرة</h2><div style="display:flex;gap:0.75rem;align-items:center"><span style="font-size:0.88rem;color:var(--text-muted)">مرحباً، المشرف</span><button onclick="hideAdminPage()" style="background:var(--blue-pale);color:var(--blue-main);border:none;border-radius:8px;padding:0.4rem 1rem;cursor:pointer;font-family:Cairo,sans-serif;font-weight:700">تسجيل خروج</button></div></div>
+    <div class="admin-stats" id="admin-stats"></div>
+    <div class="admin-table-wrap"><h3>📋 بيانات المسجّلين</h3><table><thead><tr><th>#</th><th>الاسم</th><th>رقم الهوية</th><th>الجوال</th><th>الجنس</th><th>الدورة</th><th>المدرسة</th><th>تاريخ التسجيل</th></tr></thead><tbody id="students-table"></tbody></table><p id="no-students" style="text-align:center;color:var(--text-muted);padding:2rem;display:none">لا يوجد طلاب مسجلون بعد</p></div>
+    <!-- قسم رفع ملفات الاستعلام -->
+    <div class="admin-table-wrap" style="margin-top:1.5rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:0.75rem;">
+        <h3>📂 بيانات استعلام الطلاب</h3>
+        <a href="#inquiry" onclick="hideAdminPage()" style="background:var(--blue-pale);color:var(--blue-main);border-radius:8px;padding:0.4rem 1rem;font-family:Cairo,sans-serif;font-weight:700;font-size:0.85rem;text-decoration:none;">🔗 عرض صفحة الاستعلام</a>
+      </div>
+      <p style="font-size:0.88rem;color:var(--text-muted);margin-bottom:1.2rem;line-height:1.8;">ارفع ملف Excel يحتوي على بيانات الطلاب (الاسم، رقم الهوية، الدورة، الجدول...). البيانات تُحفظ تلقائياً وتظهر في قسم الاستعلام.</p>
+      <div id="inq-upload-zone" onclick="document.getElementById('inqFileInput').click()"
+        style="border:1.5px dashed #85B7EB;border-radius:10px;padding:1.75rem;text-align:center;cursor:pointer;background:var(--blue-ultra);"
+        onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='var(--blue-ultra)'">
+        <div style="font-size:2.2rem;margin-bottom:8px;">📊</div>
+        <p style="font-size:14px;font-weight:700;color:var(--blue-main);">اضغط لرفع ملف Excel</p>
+        <small style="font-size:12px;color:#378ADD;">يدعم: .xlsx / .xls / .csv &nbsp;|&nbsp; يمكن رفع أكثر من ملف</small>
+      </div>
+      <input type="file" id="inqFileInput" accept=".xlsx,.xls,.csv" multiple style="display:none"/>
+      <div id="inq-files-list" style="margin-top:12px;display:flex;flex-direction:column;gap:6px;"></div>
+      <div id="inq-stats" style="display:none;margin-top:14px;">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;">
+          <div style="background:var(--blue-pale);border-radius:8px;padding:10px;text-align:center;"><div id="inq-s1" style="font-size:22px;font-weight:900;color:var(--blue-deep);">0</div><div style="font-size:11px;color:#378ADD;margin-top:2px;">إجمالي الطلاب</div></div>
+          <div style="background:var(--blue-pale);border-radius:8px;padding:10px;text-align:center;"><div id="inq-s2" style="font-size:22px;font-weight:900;color:var(--blue-deep);">0</div><div style="font-size:11px;color:#378ADD;margin-top:2px;">عدد الملفات</div></div>
+          <div style="background:var(--blue-pale);border-radius:8px;padding:10px;text-align:center;"><div id="inq-s3" style="font-size:22px;font-weight:900;color:var(--blue-deep);">0</div><div style="font-size:11px;color:#378ADD;margin-top:2px;">الدورات</div></div>
+        </div>
+        <button onclick="clearInquiryData()" style="background:#fef2f2;color:#991b1b;border:1px solid #fca5a5;border-radius:8px;padding:0.4rem 1rem;font-family:Cairo,sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer;">🗑 حذف جميع البيانات</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ====== REGISTRATION DATA ======
+  let students = JSON.parse(localStorage.getItem('students') || '[]');
+
+  // ====== HAMBURGER MENU ======
+  function toggleMobileMenu() {
+    const menu = document.getElementById('mobile-menu');
+    const btn = document.getElementById('hamburger-btn');
+    menu.classList.toggle('open');
+    btn.classList.toggle('open');
+  }
+  function closeMobileMenu() {
+    const menu = document.getElementById('mobile-menu');
+    const btn = document.getElementById('hamburger-btn');
+    menu.classList.remove('open');
+    btn.classList.remove('open');
+  }
+  // إغلاق القائمة عند الضغط خارجها
+  document.addEventListener('click', function(e) {
+    const menu = document.getElementById('mobile-menu');
+    const btn = document.getElementById('hamburger-btn');
+    if (menu && btn && !menu.contains(e.target) && !btn.contains(e.target)) {
+      menu.classList.remove('open');
+      btn.classList.remove('open');
+    }
+  });
+
+  // دالة التسجيل الجديدة باستخدام Firebase
+  async function submitRegistrationFirebaseWrapper() {
+    const name = document.getElementById('r-name').value.trim();
+    const id = document.getElementById('r-id').value.trim();
+    const phone = document.getElementById('r-phone').value.trim();
+    const gender = document.getElementById('r-gender').value;
+    const course = document.getElementById('r-course').value;
+    const school = document.getElementById('r-school').value.trim();
+    
+    if (!name || !id || !phone || !gender || !course || !school) { 
+      alert('يرجى ملء جميع الحقول المطلوبة'); 
+      return; 
+    }
+    if (id.length !== 10 || !/^\d+$/.test(id)) { 
+      alert('رقم الهوية يجب أن يكون 10 أرقام'); 
+      return; 
+    }
+    if (phone.length !== 10 || !phone.startsWith('05')) { 
+      alert('رقم الجوال يجب أن يبدأ بـ 05 ويكون 10 أرقام'); 
+      return; 
+    }
+    
+    // حفظ في Firebase
+    const saved = await window.submitRegistrationFirebase(name, id, phone, gender, course, school);
+    
+    if (saved) {
+      // تحديث localStorage
+      students = JSON.parse(localStorage.getItem('students') || '[]');
+      const student = { name, id, phone, gender, course, school, date: new Date().toLocaleDateString('ar-SA') };
+      students.push(student);
+      localStorage.setItem('students', JSON.stringify(students));
+      
+      document.getElementById('reg-form').style.display = 'none';
+      document.getElementById('reg-success').style.display = 'block';
+    } else {
+      alert('حدث خطأ في حفظ البيانات. حاول مرة أخرى.');
+    }
+  }
+
+  // ====== ADMIN ======
+  function showAdminPage() { document.getElementById('admin-page').style.display = 'block'; document.body.style.overflow = 'hidden'; }
+  function hideAdminPage() { document.getElementById('admin-page').style.display = 'none'; document.body.style.overflow = ''; document.getElementById('admin-login').style.display = 'block'; document.getElementById('admin-panel').style.display = 'none'; }
+  
+  async function adminLogin() {
+    const emailInput = document.getElementById('admin-user').value.trim();
+    const pass = document.getElementById('admin-pass').value;
+    const loginBtn = document.querySelector('#admin-login .submit-btn');
+    
+    if (!emailInput || !pass) {
+      alert('يرجى إدخال البريد الإلكتروني وكلمة المرور');
+      return;
+    }
+
+    loginBtn.textContent = '⏳ جاري التحقق...';
+    loginBtn.disabled = true;
+
+    // تسجيل الدخول عبر Firebase Auth
+    const result = await window.adminLoginFirebase(emailInput, pass);
+
+    loginBtn.textContent = 'دخول';
+    loginBtn.disabled = false;
+
+    if (result.success) {
+      // جلب البيانات من Firebase بعد تسجيل الدخول الناجح
+      const fbStudents = await window.getAllStudents();
+      if (fbStudents.length > 0) {
+        students = fbStudents;
+        localStorage.setItem('students', JSON.stringify(students));
+      }
+      document.getElementById('admin-login').style.display = 'none';
+      document.getElementById('admin-panel').style.display = 'block';
+      loadAdminData();
+    } else {
+      // رسالة خطأ واضحة دون كشف التفاصيل
+      alert('البريد الإلكتروني أو كلمة المرور غير صحيحة. حاول مجدداً.');
+    }
+  }
+  
+  function loadAdminData() {
+    students = JSON.parse(localStorage.getItem('students') || '[]');
+    const qCount = students.filter(s => s.course === 'قدرات').length;
+    const tCount = students.filter(s => s.course === 'تحصيلي').length;
+    const bCount = students.filter(s => s.course === 'كلاهما').length;
+    document.getElementById('admin-stats').innerHTML = `
+      <div class="admin-stat-card"><div class="as-num">${students.length}</div><div class="as-label">إجمالي المسجلين</div></div>
+      <div class="admin-stat-card"><div class="as-num">${qCount}</div><div class="as-label">دورة قدرات</div></div>
+      <div class="admin-stat-card"><div class="as-num">${tCount}</div><div class="as-label">دورة تحصيل</div></div>
+      <div class="admin-stat-card"><div class="as-num">${bCount}</div><div class="as-label">برنامج متكامل</div></div>
+    `;
+    const tbody = document.getElementById('students-table');
+    if (students.length === 0) { tbody.innerHTML = ''; document.getElementById('no-students').style.display = 'block'; }
+    else { document.getElementById('no-students').style.display = 'none'; tbody.innerHTML = students.map((s, i) => `<tr><td>${i+1}</td><td><strong>${s.name}</strong></td><td>${s.id}</td><td>${s.phone}</td><td><span class="${s.gender==='ذكر'?'badge-male':'badge-female'}">${s.gender}</span></td><td><span class="${s.course==='قدرات'?'badge-qudurat':s.course==='تحصيلي'?'badge-tahsili':'badge-both'}">${s.course}</span></td><td>${s.school}</td><td>${s.date}</td></tr>`).join(''); }
+  }
+
+  // ====== TRIAL TEST ======
+  const questions = {
+    qudurat: [
+      { q: "إذا كان عمر أحمد ضعف عمر علي، وعمر علي 15 سنة، فكم عمر أحمد؟", opts: ["25", "30", "20", "35"], ans: 1 },
+      { q: "أي الكلمات التالية تختلف في المعنى عن الباقية؟", opts: ["فرِح", "مسرور", "حزين", "سعيد"], ans: 2 },
+      { q: "ما ناتج: 15% من 200؟", opts: ["25", "30", "35", "20"], ans: 1 },
+      { q: "إذا كانت (س + 5 = 12)، فما قيمة (2س)؟", opts: ["14", "10", "12", "16"], ans: 0 },
+      { q: "أي الكلمات مضادة لكلمة 'كريم'؟", opts: ["شجاع", "بخيل", "حكيم", "صادق"], ans: 1 },
+      { q: "إذا كان ثمن 5 أقلام 25 ريالاً، فكم سعر قلم واحد؟", opts: ["4", "5", "6", "7"], ans: 1 },
+      { q: "أي الأشكال التالية له 4 أضلاع متساوية وزوايا قائمة؟", opts: ["المستطيل", "المعين", "المربع", "شبه المنحرف"], ans: 2 },
+      { q: "ما عكس كلمة 'يقظان'؟", opts: ["نشيط", "نائم", "حذر", "مجتهد"], ans: 1 },
+      { q: "ما الرقم الذي يكمل المتتالية: 2، 4، 8، 16، ___؟", opts: ["18", "24", "32", "20"], ans: 2 },
+      { q: "إذا كان المتجر يبيع 3 تفاحات بـ 9 ريالات، فكم تكلف 7 تفاحات؟", opts: ["18", "21", "24", "27"], ans: 1 }
+    ],
+    tahsili: [
+      { q: "ما عدد بروتونات ذرة الكربون؟", opts: ["4", "6", "8", "12"], ans: 1 },
+      { q: "ما ناتج (2³ × 2²)؟", opts: ["32", "16", "64", "12"], ans: 0 },
+      { q: "ما وحدة قياس القوة في النظام الدولي؟", opts: ["جول", "واط", "نيوتن", "باسكال"], ans: 2 },
+      { q: "ما عدد أضلاع المثلث؟", opts: ["4", "3", "5", "6"], ans: 1 },
+      { q: "أي من الآتي يُعدّ خليطاً غير متجانس؟", opts: ["الهواء", "الماء المملّح", "الرمل والماء", "سبيكة النحاس"], ans: 2 },
+      { q: "ما الجهاز المسؤول عن ضخ الدم في جسم الإنسان؟", opts: ["الرئة", "القلب", "الكبد", "الكلية"], ans: 1 },
+      { q: "ما الصيغة الكيميائية للماء؟", opts: ["CO2", "H2O", "O2", "NaCl"], ans: 1 },
+      { q: "كم درجة تساوي مجموع زوايا المثلث؟", opts: ["90", "180", "270", "360"], ans: 1 },
+      { q: "ما نوع الطاقة المخزنة في الطعام؟", opts: ["حرارية", "ضوئية", "كيميائية", "حركية"], ans: 2 },
+      { q: "ما ناتج حل المعادلة: 3س - 6 = 9؟", opts: ["3", "4", "5", "6"], ans: 2 },
+      { q: "أي من الآتي موصل جيد للكهرباء؟", opts: ["الخشب", "البلاستيك", "النحاس", "الزجاج"], ans: 2 }
+    ]
+  };
+  
+  let currentType = '', currentQ = 0, score = 0, answered = false;
+  
+  function startTrial(type) { 
+    currentType = type; 
+    currentQ = 0; 
+    score = 0; 
+    answered = false; 
+    document.getElementById('type-selector').style.display = 'none'; 
+    document.getElementById('trial-questions').style.display = 'block'; 
+    document.getElementById('trial-result').style.display = 'none'; 
+    document.getElementById('trial-title').textContent = type === 'qudurat' ? 'اختبار القدرات التجريبي' : 'اختبار التحصيل التجريبي'; 
+    document.getElementById('trial-subtitle').textContent = '5 أسئلة تدريبية — اختر الإجابة الصحيحة'; 
+    showQuestion(); 
+  }
+  
+  function showQuestion() { 
+    answered = false; 
+    const qs = questions[currentType]; 
+    const q = qs[currentQ]; 
+    document.getElementById('q-num').textContent = `سؤال ${currentQ+1} من ${qs.length}`; 
+    document.getElementById('q-text').textContent = q.q; 
+    document.getElementById('progress-fill').style.width = `${((currentQ+1)/qs.length)*100}%`; 
+    document.getElementById('score-counter').textContent = `${score} / ${currentQ}`; 
+    document.getElementById('next-btn').style.display = 'none'; 
+    const optsDiv = document.getElementById('q-options'); 
+    optsDiv.innerHTML = q.opts.map((o, i) => `<button class="option-btn" onclick="selectOption(${i})">${o}</button>`).join(''); 
+  }
+  
+  function selectOption(i) { 
+    if (answered) return; 
+    answered = true; 
+    const q = questions[currentType][currentQ]; 
+    const btns = document.querySelectorAll('.option-btn'); 
+    btns.forEach((b, idx) => { 
+      if (idx === q.ans) b.classList.add('correct'); 
+      else if (idx === i) b.classList.add('wrong'); 
+      b.disabled = true; 
+    }); 
+    if (i === q.ans) score++; 
+    document.getElementById('score-counter').textContent = `${score} / ${currentQ+1}`; 
+    document.getElementById('next-btn').style.display = 'inline-block'; 
+    if (currentQ === questions[currentType].length - 1) document.getElementById('next-btn').textContent = '🏁 عرض النتيجة'; 
+  }
+  
+  function nextQuestion() { 
+    currentQ++; 
+    if (currentQ >= questions[currentType].length) showResult(); 
+    else showQuestion(); 
+  }
+  
+  function showResult() { 
+    document.getElementById('trial-questions').style.display = 'none'; 
+    const r = document.getElementById('trial-result'); 
+    r.style.display = 'block'; 
+    const pct = Math.round((score / questions[currentType].length) * 100); 
+    document.getElementById('result-score').textContent = `${score} / ${questions[currentType].length}`; 
+    const label = pct >= 80 ? '🌟 ممتاز! أنت مستعد للاختبار' : pct >= 60 ? '👍 جيد! تحتاج مزيداً من التدريب' : '📚 سجّل في دورتنا لتحسين مستواك'; 
+    document.getElementById('result-label').textContent = label; 
+  }
+  
+  function resetTrial() { 
+    document.getElementById('type-selector').style.display = 'flex'; 
+    document.getElementById('trial-questions').style.display = 'none'; 
+    document.getElementById('trial-result').style.display = 'none'; 
+    document.getElementById('trial-title').textContent = 'اختر نوع الاختبار'; 
+    document.getElementById('trial-subtitle').textContent = 'اختر الاختبار الذي تريد التدرب عليه'; 
+  }
+
+  // ====== معرض الصور المنزلق ======
+  const galleryImages = [
+    "grades/g1.jpeg",
+    "grades/g2.jpeg",
+    "grades/g3.jpeg",
+    "grades/g4.jpeg",
+    "grades/g5.jpeg",
+    "grades/g6.jpeg",
+    "grades/g7.jpeg",
+    "grades/g8.jpeg",
+    "grades/g9.jpeg",
+    "grades/g10.jpeg",
+    "grades/g11.jpeg",
+    "grades/g12.jpeg",
+    "grades/g13.jpeg",
+    "grades/g14.jpeg",
+    "grades/g1.jpeg"
+  ];
+  
+  let currentIndex = 0;
+  
+  function loadSlider() {
+    const imgElement = document.getElementById('slider-image');
+    if (!imgElement) return;
+    
+    // إضافة placeholder عند فشل تحميل الصورة
+    imgElement.onerror = function() {
+      this.onerror = null;
+      this.style.display = 'none';
+      const parent = this.parentElement;
+      if (!parent.querySelector('.slider-placeholder')) {
+        const placeholder = document.createElement('div');
+        placeholder.className = 'slider-placeholder';
+        placeholder.style.cssText = 'padding:3rem 2rem;text-align:center;color:var(--text-muted);';
+        placeholder.innerHTML = '<div style="font-size:3rem;margin-bottom:1rem;">🏆</div><div style="font-weight:700;color:var(--blue-deep);font-size:1.1rem;">نتائج طلابنا المتميزين</div><div style="font-size:0.9rem;margin-top:0.5rem;">يرجى رفع صور الدرجات في مجلد grades/ مع الملف</div>';
+        parent.appendChild(placeholder);
+      }
+    };
+    imgElement.onload = function() {
+      this.style.display = 'block';
+      const ph = this.parentElement.querySelector('.slider-placeholder');
+      if (ph) ph.remove();
+    };
+    
+    if (galleryImages.length > 0) imgElement.src = galleryImages[0];
+    updateDots();
+  }
+  
+  function updateImage() {
+    const imgElement = document.getElementById('slider-image');
+    if (!imgElement) return;
+    const ph = imgElement.parentElement.querySelector('.slider-placeholder');
+    if (ph) ph.remove();
+    imgElement.style.display = 'block';
+    if (galleryImages[currentIndex]) imgElement.src = galleryImages[currentIndex];
+    updateDots();
+  }
+  
+  function nextImage() { if (galleryImages.length === 0) return; currentIndex = (currentIndex + 1) % galleryImages.length; updateImage(); }
+  function prevImage() { if (galleryImages.length === 0) return; currentIndex = (currentIndex - 1 + galleryImages.length) % galleryImages.length; updateImage(); }
+  function goToImage(index) { if (index >= 0 && index < galleryImages.length) { currentIndex = index; updateImage(); } }
+  
+  function updateDots() {
+    const dotsContainer = document.getElementById('slider-dots');
+    if (!dotsContainer) return;
+    let dotsHtml = '';
+    for (let i = 0; i < galleryImages.length; i++) dotsHtml += `<div class="dot ${i === currentIndex ? 'active' : ''}" onclick="goToImage(${i})"></div>`;
+    dotsContainer.innerHTML = dotsHtml;
+  }
+  
+  document.addEventListener('DOMContentLoaded', loadSlider);
+
+  // ====== INQUIRY SYSTEM ======
+  let inqSources = [];
+  try { const s = localStorage.getItem('inquiry_data'); if(s) inqSources = JSON.parse(s); } catch(e){}
+
+  // تحميل بيانات Excel من Firebase عند فتح الصفحة
+  async function inqLoadFromFirebase() {
+    try {
+      const fbData = await window.loadInquiryData();
+      if (fbData.length > 0) {
+        // إعادة تجميع البيانات حسب اسم الملف
+        const grouped = {};
+        fbData.forEach(row => {
+          const name = row.fileName || 'ملف الطلاب';
+          if (!grouped[name]) grouped[name] = { name, headers: Object.keys(row).filter(k => !['fileName','uploadedAt'].includes(k)), data: [] };
+          const cleanRow = { ...row };
+          delete cleanRow.fileName;
+          delete cleanRow.uploadedAt;
+          grouped[name].data.push(cleanRow);
+        });
+        inqSources = Object.values(grouped);
+        localStorage.setItem('inquiry_data', JSON.stringify(inqSources));
+        inqRenderFiles();
+        inqUpdateStats();
+        console.log("✅ بيانات الاستعلام حُمّلت من Firebase");
+      }
+    } catch(e) { console.warn("فشل تحميل بيانات الاستعلام:", e); }
+  }
+  // تحميل فوري عند فتح الصفحة
+  setTimeout(inqLoadFromFirebase, 2000);
+
+  function inqUpdateStats() {
+    const total = inqSources.reduce((a,s)=>a+s.data.length,0);
+    const courses = new Set(inqSources.flatMap(s=>s.data.map(r=>r['اسم الدورة']||r['الدورة']||r['course']||'')).filter(Boolean));
+    const el = document.getElementById('inq-stats');
+    if(el){ el.style.display=inqSources.length?'block':'none'; document.getElementById('inq-s1').textContent=total; document.getElementById('inq-s2').textContent=inqSources.length; document.getElementById('inq-s3').textContent=courses.size||'—'; }
+  }
+
+  function inqRenderFiles() {
+    const el = document.getElementById('inq-files-list'); if(!el) return; el.innerHTML='';
+    inqSources.forEach((s,i)=>{ const d=document.createElement('div'); d.style.cssText='background:#dbeafe;border:0.5px solid #85B7EB;border-radius:8px;padding:9px 14px;display:flex;align-items:center;gap:8px;'; d.innerHTML='<span style="font-size:18px;">📄</span><span style="font-size:13px;color:#0C447C;font-weight:700;flex:1;">'+s.name+'</span><span style="font-size:12px;color:#378ADD;">'+s.data.length+' طالب</span><button onclick="inqRemoveFile('+i+')" style="background:none;border:none;cursor:pointer;color:#A32D2D;font-size:16px;" title="حذف">✕</button>'; el.appendChild(d); });
+  }
+
+  function inqRemoveFile(i){ inqSources.splice(i,1); localStorage.setItem('inquiry_data',JSON.stringify(inqSources)); inqRenderFiles(); inqUpdateStats(); }
+  function clearInquiryData(){ if(!confirm('حذف جميع البيانات؟')) return; inqSources=[]; localStorage.removeItem('inquiry_data'); inqRenderFiles(); inqUpdateStats(); }
+
+  function inqParseFile(file, cb) {
+    const r = new FileReader();
+    r.onload = function(e){
+      try{
+        let rows=[];
+        if(file.name.endsWith('.csv')){ rows=e.target.result.split('\n').map(l=>l.split(',').map(c=>c.replace(/^"|"$/g,'').trim())); }
+        else{ const wb=XLSX.read(e.target.result,{type:'binary'}); const ws=wb.Sheets[wb.SheetNames[0]]; rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''}); }
+        if(rows.length<2){cb(null,'فارغ');return;}
+        const h=rows[0].map(x=>String(x).trim());
+        const d=rows.slice(1).map(row=>{const o={};h.forEach((k,i)=>o[k]=String(row[i]||'').trim());return o;}).filter(r=>Object.values(r).some(v=>v));
+        cb({name:file.name,headers:h,data:d});
+      }catch(ex){cb(null,ex.message);}
+    };
+    if(file.name.endsWith('.csv')) r.readAsText(file,'UTF-8'); else r.readAsBinaryString(file);
+  }
+
+  function inqGetIdCol(headers){ const p=['رقم الهوية','الهوية','هوية','رقم_الهوية','id','ID','رقم الطالب']; for(const x of p) if(headers.includes(x)) return x; return headers[0]; }
+
+  const inqIconMap={'اسم الطالب':'👤','الاسم':'👤','اسم الدورة':'🎓','الدورة':'🎓','رقم المجموعة':'👥','المجموعة':'👥','الجدول':'📅','جدول':'📅','التاريخ':'📆','تاريخ البداية':'📆','تاريخ الانتهاء':'📆','القاعة':'🚪','المكان':'📍','المدرب':'🧑‍🏫','الحالة':'✅','الهاتف':'📞','الجوال':'📞','البريد':'✉️'};
+
+  function inqGetInitials(n){ if(!n) return '؟'; const p=n.trim().split(' '); return p.length>=2?p[0][0]+p[1][0]:p[0].slice(0,2); }
+
+  async function inqSearch() {
+    const q = document.getElementById('inq-id-input').value.trim();
+    const area = document.getElementById('inq-result');
+    if(!q){ area.innerHTML='<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:10px;padding:12px 16px;font-size:13px;color:#991b1b;">⚠️ الرجاء إدخال رقم الهوية</div>'; return; }
+    
+    // البحث أولاً في Firebase
+    const fbResults = await window.findStudentById(q);
+    if (fbResults.length > 0) {
+      let html = '';
+      fbResults.forEach(student => {
+        html += `<div style="border-radius:16px;border:1px solid var(--blue-pale);overflow:hidden;margin-bottom:12px;"><div style="background:linear-gradient(135deg,var(--blue-deep),var(--blue-main));padding:1rem 1.25rem;display:flex;align-items:center;gap:14px;"><div style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;border:2px solid rgba(255,255,255,0.3);flex-shrink:0;">${inqGetInitials(student.name)}</div><div><div style="font-size:16px;font-weight:800;color:#fff;">${student.name}</div><div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:2px;">رقم الهوية: ${q}</div></div></div><div style="background:#fff;"><div style="display:flex;align-items:center;padding:11px 1.25rem;border-bottom:1px solid var(--blue-ultra);gap:10px;"><span style="font-size:18px;flex-shrink:0;">📞</span><div style="font-size:13px;color:var(--text-muted);min-width:100px;">رقم الجوال</div><div style="font-size:14px;color:var(--blue-deep);font-weight:700;">${student.phone}</div></div><div style="display:flex;align-items:center;padding:11px 1.25rem;border-bottom:1px solid var(--blue-ultra);gap:10px;"><span style="font-size:18px;flex-shrink:0;">🎓</span><div style="font-size:13px;color:var(--text-muted);min-width:100px;">نوع الدورة</div><div style="font-size:14px;color:var(--blue-deep);font-weight:700;">${student.course}</div></div><div style="display:flex;align-items:center;padding:11px 1.25rem;gap:10px;"><span style="font-size:18px;flex-shrink:0;">🏫</span><div style="font-size:13px;color:var(--text-muted);min-width:100px;">المدرسة</div><div style="font-size:14px;color:var(--blue-deep);font-weight:700;">${student.school}</div></div></div></div>`;
+      });
+      area.innerHTML = html;
+      return;
+    }
+    
+    // إذا لم يوجد في Firebase، ابحث في الملفات المرفوعة
+    if(!inqSources.length){ area.innerHTML='<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px 16px;font-size:13px;color:#92400e;">⚠️ لم يتم تحميل بيانات الطلاب بعد. تواصل مع الإدارة.</div>'; return; }
+    
+    const results=[];
+    inqSources.forEach(source=>{ const idCol=inqGetIdCol(source.headers); const student=source.data.find(r=>r[idCol]===q||r[idCol].replace(/\s/g,'')===q.replace(/\s/g,'')); if(student) results.push({student,source}); });
+    
+    if(!results.length){ area.innerHTML='<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:10px;padding:14px 16px;text-align:center;"><div style="font-size:1.8rem;margin-bottom:6px;">❌</div><div style="font-size:14px;font-weight:700;color:#991b1b;">لم يتم العثور على طالب بهذا الرقم</div><div style="font-size:12px;color:#b91c1c;margin-top:4px;">تأكد من الرقم أو تواصل مع الإدارة</div></div>'; return; }
+    
+    let html='';
+    results.forEach(({student,source})=>{
+      const idCol=inqGetIdCol(source.headers);
+      const nameKey=source.headers.find(h=>['اسم الطالب','الاسم','name','الاسم الكامل'].includes(h))||source.headers[1]||source.headers[0];
+      const name=student[nameKey]||'الطالب';
+      let rows='';
+      source.headers.forEach(h=>{ if(h===idCol) return; const val=student[h]; if(!val) return; const icon=inqIconMap[h]||'ℹ️'; let display=val; if(h==='الحالة'){ const ok=val.includes('نشط')||val.includes('مقبول'); display='<span style="background:var(--blue-pale);color:var(--blue-main);font-size:12px;padding:2px 10px;border-radius:20px;font-weight:700;">'+val+'</span>'; } rows+='<div style="display:flex;align-items:center;padding:11px 1.25rem;border-bottom:1px solid var(--blue-ultra);gap:10px;"><span style="font-size:18px;flex-shrink:0;">'+icon+'</span><div style="font-size:13px;color:var(--text-muted);min-width:100px;">'+h+'</div><div style="font-size:14px;color:var(--blue-deep);font-weight:700;">'+display+'</div></div>'; });
+      html+='<div style="border-radius:16px;border:1px solid var(--blue-pale);overflow:hidden;margin-bottom:12px;"><div style="background:linear-gradient(135deg,var(--blue-deep),var(--blue-main));padding:1rem 1.25rem;display:flex;align-items:center;gap:14px;"><div style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;border:2px solid rgba(255,255,255,0.3);flex-shrink:0;">'+inqGetInitials(name)+'</div><div><div style="font-size:16px;font-weight:800;color:#fff;">'+name+'</div><div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:2px;">رقم الهوية: '+q+'</div></div></div><div style="background:#fff;">'+rows+'</div></div>';
+    });
+    area.innerHTML = html;
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    const fi = document.getElementById('inqFileInput'); if(!fi) return;
+    fi.addEventListener('change', function(e){
+      const files=Array.from(e.target.files); let done=0;
+      files.forEach(file=>{ if(inqSources.find(s=>s.name===file.name)){done++;return;} inqParseFile(file,async result=>{ done++; if(result){ inqSources.push(result); localStorage.setItem('inquiry_data',JSON.stringify(inqSources)); /* حفظ في Firebase حتى يظهر من أي جهاز */ await window.saveInquiryData(result.name, result.data); } else alert('خطأ: '+file.name); if(done===files.length){inqRenderFiles();inqUpdateStats();fi.value='';} }); });
+    });
+    const zone=document.getElementById('inq-upload-zone');
+    if(zone){ zone.addEventListener('dragover',e=>{e.preventDefault();zone.style.background='#dbeafe';}); zone.addEventListener('dragleave',()=>zone.style.background='var(--blue-ultra)'); zone.addEventListener('drop',e=>{e.preventDefault();zone.style.background='var(--blue-ultra)';fi.files=e.dataTransfer.files;fi.dispatchEvent(new Event('change'));}); }
+    inqRenderFiles(); inqUpdateStats();
+    
+    // مزامنة البيانات من Firebase عند تحميل الصفحة
+    window.syncStudentsToLocal().then(fbStudents => {
+      if (fbStudents.length > 0) {
+        students = fbStudents;
+        localStorage.setItem('students', JSON.stringify(students));
+      }
+    });
+  });
+</script>
+</body>
+</html>
